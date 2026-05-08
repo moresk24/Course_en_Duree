@@ -204,7 +204,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.dashboard-hero-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem }
+.dashboard-hero-projet { font-size: 1.1rem; color: var(--accent); margin-top: .15rem }
+.hero-divider { border: none; border-top: 1px solid var(--border); margin: .75rem 0 }
+.dashboard-hero-vma { margin-top: 0; line-height: 1; display: flex; align-items: baseline; justify-content: center; gap: .15em }
+.dashboard-hero-vma-label { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--accent); letter-spacing: .05em }
+.dashboard-hero-vma-arrow { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--muted) }
+.dashboard-hero-vma-val { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; color: var(--accent) }
+.dashboard-hero-vma-unit { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--muted); letter-spacing: .05em }
 .dashboard-badge-row {
   display: flex; align-items: center; justify-content: center; gap: .75rem;
   margin: 1rem 0 .5rem;
@@ -221,6 +227,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
   background: var(--s1); border: 1px solid var(--border); border-radius: 12px;
   padding: .85rem; text-align: center;
 }
+.stat-card-full { grid-column: 1 / -1 }
 .stat-card-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--accent) }
 .stat-card-key { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: .1rem }
 

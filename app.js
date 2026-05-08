@@ -371,11 +371,14 @@ function renderAccueil() {
 
   // Hero
   html.push(`<div class="dashboard-hero">
-    <div class="dashboard-hero-name">${state.prenom} ${state.nom}</div>
-    <div class="dashboard-hero-sub">Projet ${p} — ${pInfo.nom}</div>`);
+    <div class="dashboard-hero-name">Projet ${p}</div>
+    <div class="dashboard-hero-projet">${pInfo.nom}</div>
+    <div class="hero-divider"></div>
+    <div class="dashboard-hero-vma"><span class="dashboard-hero-vma-label">VMA</span><span class="dashboard-hero-vma-arrow"> → </span><span class="dashboard-hero-vma-val">${state.vma}</span><span class="dashboard-hero-vma-unit"> KM/H</span></div>`);
 
   if (dernS) {
-    html.push(`<div class="dashboard-badge-row">
+    html.push(`<div class="hero-divider"></div>
+    <div class="dashboard-badge-row">
       <div class="dashboard-badge-emoji">${badgeEmoji(dernS.badge)}</div>
       <div class="dashboard-badge-info">
         <div class="dashboard-badge-label">Dernière séance · S${lastSeanceNum()}</div>
@@ -386,12 +389,8 @@ function renderAccueil() {
   html.push('</div>');
 
   // Stats
-  html.push('<div class="stat-grid">');
-  html.push(`<div class="stat-card"><div class="stat-card-val">${state.vma}</div><div class="stat-card-key">VMA km/h</div></div>`);
-
   const nbDone = Object.keys(state.seances).filter(k => state.seances[k]).length;
-  html.push(`<div class="stat-card"><div class="stat-card-val">${nbDone}/${nb}</div><div class="stat-card-key">Séances effectuées</div></div>`);
-  html.push('</div>');
+  html.push(`<div class="stat-grid"><div class="stat-card stat-card-full"><div class="stat-card-val">${nbDone}/${nb}</div><div class="stat-card-key">Séances effectuées</div></div></div>`);
 
   if (!next) {
     // Cycle terminé
