@@ -826,14 +826,8 @@ function renderPhaseChronoCours(el) {
   if (running) {
     startChrono(s._seqRemaining ?? seq.objectifDuree, 'cours');
     $('btn-terminer-seq').onclick = () => {
-      const remaining = s._seqRemaining ?? 0;
       stopChrono();
       s.seqRunning = false;
-      const dureeReelle = seq.objectifDuree - remaining;
-      if (dureeReelle >= 30 && dureeReelle < seq.objectifDuree) {
-        seq.objectifDistance = calcDistanceCible(s.projet, state.vma, dureeReelle / 60);
-        seq.objectifDuree = dureeReelle;
-      }
       s.phase = 'saisie';
       renderSeancePhase();
     };
