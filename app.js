@@ -830,7 +830,7 @@ function renderPhaseChronoCours(el) {
       stopChrono();
       s.seqRunning = false;
       const dureeReelle = seq.objectifDuree - remaining;
-      if (dureeReelle > 0 && dureeReelle < seq.objectifDuree) {
+      if (dureeReelle >= 30 && dureeReelle < seq.objectifDuree) {
         seq.objectifDistance = calcDistanceCible(s.projet, state.vma, dureeReelle / 60);
         seq.objectifDuree = dureeReelle;
       }
