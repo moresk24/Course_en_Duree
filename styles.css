@@ -420,16 +420,19 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 .bilan-stat-val    { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent) }
 .bilan-stat-key    { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em }
 .bilan-seq-row {
-  display: flex; align-items: center; justify-content: space-between;
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto;
+  align-items: center; gap: 0 .5rem;
   padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .82rem;
 }
 .bilan-seq-row:last-child { border-bottom: none }
-.bilan-seq-num  { color: var(--muted); width: 24px; font-weight: 700 }
+.bilan-seq-num  { color: var(--muted); font-weight: 700 }
 .bilan-seq-dist { font-weight: 700 }
-.bilan-seq-ecart { font-size: .75rem }
+.bilan-seq-ecart { font-size: .75rem; text-align: right }
 .bilan-seq-ecart.good   { color: var(--green) }
 .bilan-seq-ecart.medium { color: var(--yellow) }
 .bilan-seq-ecart.bad    { color: var(--red) }
+.bilan-seq-vma  { font-size: .75rem; color: var(--muted); text-align: right; white-space: nowrap }
 
 /* ═══════════════════════════════════════════
    PAGE PROGRESSION — SVG

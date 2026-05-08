@@ -822,8 +822,14 @@ function renderPhaseChronoCours(el) {
   if (running) {
     startChrono(s._seqRemaining ?? seq.objectifDuree, 'cours');
     $('btn-terminer-seq').onclick = () => {
+      const remaining = s._seqRemaining ?? 0;
       stopChrono();
       s.seqRunning = false;
+      const dureeReelle = seq.objectifDuree - remaining;
+      if (dureeReelle > 0 && dureeReelle < seq.objectifDuree) {
+        seq.objectifDistance = calcDistanceCible(s.projet, state.vma, dureeReelle / 60);
+        seq.objectifDuree = dureeReelle;
+      }
       s.phase = 'saisie';
       renderSeancePhase();
     };
@@ -941,10 +947,16 @@ function renderPhaseBilanSaisie(el) {
     const done = seq.distanceReelle !== null;
     const pct  = done ? seq.distanceReelle / seq.objectifDistance : null;
     const cls  = !done ? '' : pct >= 0.95 ? 'good' : pct >= 0.70 ? 'medium' : 'bad';
+    let pctVMA = null;
+    if (done && seq.objectifDuree > 0 && state.vma > 0) {
+      const vitesseReelle = (seq.distanceReelle / 1000) / (seq.objectifDuree / 3600);
+      pctVMA = Math.round(vitesseReelle / state.vma * 100);
+    }
     return `<div class="bilan-seq-row">
       <span class="bilan-seq-num">${i+1}</span>
       <span class="bilan-seq-dist">${done ? seq.distanceReelle + ' m' : '—'}</span>
       <span class="bilan-seq-ecart ${cls}">${done ? '/ ' + seq.objectifDistance + ' m · ' + Math.round(pct*100) + '%' : ''}</span>
+      ${pctVMA !== null ? `<span class="bilan-seq-vma">${pctVMA} % VMA</span>` : '<span></span>'}
     </div>`;
   }).join('');
 
@@ -994,7 +1006,7 @@ function renderPhaseBilan(el) {
   const vitesse      = distTotale > 0 ? Math.round((distTotale / 1000) / (dureeTotal / 3600) * 10) / 10 : 0;
   const allure       = calcAllure(vitesse);
   const moyPct       = seqsWithDist.length
-    ? seqsWithDist.reduce((a, q) => a + q.distanceReelle / q.objectifDistance, 0) / seqsWithDist.length
+    ? seqsWithDist.reduce((a, q) => a + Math.min(q.distanceReelle / q.objectifDistance, 1), 0) / seqsWithDist.length
     : 0;
   const badge = calcBadge(moyPct);
   const col   = badgeColor(badge);
@@ -1034,6 +1046,7 @@ function renderPhaseBilan(el) {
   $('btn-enregistrer-seance').onclick = async () => {
     const data = {
       date: todayISO(),
+      vma: state.vma,
       sequences: s.sequences.map(q => ({
         numero: q.numero,
         objectifDistance: q.objectifDistance,
@@ -1172,6 +1185,7 @@ function renderPhaseSaisieP3(el) {
     $('btn-enregistrer-seance').onclick = async () => {
       const data = {
         date: todayISO(),
+        vma: state.vma,
         sequences: [{ numero: 1, objectifDistance: obj, objectifDuree: 1800, distanceReelle: dist }],
         distanceTotale: dist,
         vitesseKmh:     vitesse,
