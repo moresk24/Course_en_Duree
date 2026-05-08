@@ -100,7 +100,7 @@ const PROJETS_INFO = {
     nom:       "Je progresse en performance",
     intensite: "90–95 % de la VMA",
     icon:      "⚡",
-    couleur:   "accent",
+    couleur:   "orange",
     description: "Vous travaillez par séquences courtes à allure élevée, proches de votre vitesse maximale aérobie. Votre organisme est poussé à sa limite d'utilisation de l'oxygène, ce qui le force à s'adapter et à devenir plus performant. Entre chaque séquence, une récupération courte — insuffisante pour souffler complètement — maintient la sollicitation.",
     benefices: [
       "Augmentation de la VMA",

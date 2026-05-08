@@ -261,12 +261,12 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 }
 .projet-choice-card:hover              { transform: translateY(-2px) }
 .projet-choice-card.p1:hover           { border-color: var(--blue) }
-.projet-choice-card.p2:hover           { border-color: var(--accent) }
+.projet-choice-card.p2:hover           { border-color: var(--orange) }
 .projet-choice-card.p3:hover           { border-color: var(--green) }
 .projet-choice-card.selected           { border-color: var(--accent); background: rgba(46,204,113,.06) }
 .projet-choice-num    { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 1 }
 .projet-choice-num.p1 { color: var(--blue) }
-.projet-choice-num.p2 { color: var(--accent) }
+.projet-choice-num.p2 { color: var(--orange) }
 .projet-choice-num.p3 { color: var(--green) }
 .projet-choice-nom  { font-weight: 700; font-size: .95rem; margin: .15rem 0 }
 .projet-choice-int  { font-size: .78rem; color: var(--muted) }
@@ -284,8 +284,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 .fiche-header     { background: linear-gradient(135deg, var(--accent), var(--accent2)); padding: 1.25rem }
 .fiche-header h2  { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: .05em; color: #fff }
 .fiche-header p   { font-size: .88rem; color: rgba(255,255,255,.9); margin-top: .2rem }
-.fiche-header.blue  { background: linear-gradient(135deg, var(--blue), #5b9fff) }
-.fiche-header.green { background: linear-gradient(135deg, #1abc9c, var(--green)) }
+.fiche-header.blue   { background: linear-gradient(135deg, var(--blue), #5b9fff) }
+.fiche-header.orange { background: linear-gradient(135deg, var(--orange), #f39c12) }
+.fiche-header.green  { background: linear-gradient(135deg, #1abc9c, var(--green)) }
 .fiche-body       { padding: 1rem 1.25rem }
 .fiche-desc       { font-size: .88rem; line-height: 1.7; margin-bottom: 1rem }
 .fiche-benefices  { list-style: none; margin-bottom: 1rem }
@@ -531,7 +532,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
   width: 32px; height: 32px; border: 3px solid rgba(46,204,113,.2);
   border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes spin  { to { transform: rotate(360deg) } }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(231,76,60,.5) } 50% { box-shadow: 0 0 0 12px rgba(231,76,60,0) } }
+.btn-pulse { animation: pulse 1.6s ease-in-out infinite }
 
 /* ═══════════════════════════════════════════
    MODAL

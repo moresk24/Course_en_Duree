@@ -606,7 +606,7 @@ function renderProjet() {
 
   const p    = parseInt(state.projet);
   const info = PROJETS_INFO[p];
-  const headerClass = p === 1 ? 'blue' : p === 3 ? 'green' : '';
+  const headerClass = p === 1 ? 'blue' : p === 2 ? 'orange' : 'green';
 
   el.innerHTML = `
     <div class="projet-fiche">
@@ -748,6 +748,7 @@ function startSeance(num) {
       sequences,
       seqIndex: 0,
       phase: 'cours',     // cours | saisie | recup | bilan-saisie | bilan
+      seqRunning: false,
       ressenti: null,
     };
   } else {
@@ -788,22 +789,51 @@ function renderSeancePhase() {
 function renderPhaseChronoCours(el) {
   const s   = state.seance;
   const seq = s.sequences[s.seqIndex];
+  const running = !!s.seqRunning;
 
   el.innerHTML = `
     <div class="seance-header-card">
       <div class="seance-num-label">Séance ${s.num}</div>
       <div class="seance-subtitle">Séquence ${s.seqIndex + 1} / ${s.sequences.length}</div>
     </div>
-    <div class="chrono-card running" id="chrono-card">
-      <div class="chrono-phase-label running">Course</div>
-      <div class="chrono-seq-info">Objectif : <strong>${seq.objectifDistance} m</strong></div>
-      <div class="chrono-display running" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
-      <div class="chrono-objectif">Durée : <span>${fmtDureeLabel(seq.objectifDuree)}</span></div>
+    <div class="chrono-card ${running ? 'running' : ''}" id="chrono-card">
+      <div class="chrono-phase-label ${running ? 'running' : ''}">
+        ${running ? 'Course en cours' : 'Prêt à partir ?'}
+      </div>
+      <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:.75rem">
+        <div style="text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);line-height:1">${seq.objectifDistance}</div>
+          <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">mètres cibles</div>
+        </div>
+        <div style="width:1px;background:var(--border)"></div>
+        <div style="text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1">${fmtDureeLabel(seq.objectifDuree)}</div>
+          <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">durée</div>
+        </div>
+      </div>
+      <div class="chrono-display ${running ? 'running' : ''}" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
     </div>
-    <button class="btn btn-outline" id="btn-terminer-seq" style="margin-bottom:.75rem">Arrêter la séquence</button>
-    <div style="font-size:.75rem;color:var(--muted);text-align:center">Le chrono continue même si vous quittez cette page.</div>`;
+    ${running
+      ? `<button class="btn btn-pulse" id="btn-terminer-seq" style="margin-bottom:.75rem;padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">⏹ Arrêter la séquence</button>
+         <div style="font-size:.75rem;color:var(--muted);text-align:center">Le chrono continue même si vous quittez cette page.</div>`
+      : `<button class="btn btn-pulse" id="btn-start-seq" style="padding:1.4rem;font-size:1.3rem">▶ Démarrer la séquence</button>`
+    }`;
 
-  startChrono(seq.objectifDuree, 'cours');
+  if (running) {
+    startChrono(s._seqRemaining ?? seq.objectifDuree, 'cours');
+    $('btn-terminer-seq').onclick = () => {
+      stopChrono();
+      s.seqRunning = false;
+      s.phase = 'saisie';
+      renderSeancePhase();
+    };
+  } else {
+    $('btn-start-seq').onclick = () => {
+      s.seqRunning = true;
+      s._seqRemaining = seq.objectifDuree;
+      renderPhaseChronoCours(el);
+    };
+  }
 }
 
 // ─── Phase : saisie distance (P1/P2) ────────────────────────
@@ -881,19 +911,21 @@ function renderPhaseRecup(el) {
     <div class="chrono-card recup" id="chrono-card">
       <div class="chrono-phase-label recup">Récupération active</div>
       <div class="chrono-display recup" id="chrono-display">${fmtTime(s.def.recupSec)}</div>
-      <div class="chrono-objectif">Marchez ou trottinez doucement</div>
+      <div style="margin-top:.75rem;background:rgba(61,139,255,.12);border:1px solid rgba(61,139,255,.3);border-radius:10px;padding:.65rem 1rem;font-size:1rem;font-weight:700;color:var(--blue)">🚶 Marchez ou trottinez doucement</div>
     </div>
-    <button class="btn btn-outline" id="btn-passer-recup">Passer la récupération</button>`;
+    <button class="btn btn-pulse" id="btn-passer-recup" style="padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--blue),#5b9fff)">▶ Séquence suivante</button>`;
 
   $('btn-passer-recup').onclick = () => {
     stopChrono();
     s.seqIndex++;
+    s.seqRunning = false;
     s.phase = 'cours';
     renderSeancePhase();
   };
 
   startChrono(s.def.recupSec, 'recup', () => {
     s.seqIndex++;
+    s.seqRunning = false;
     s.phase = 'cours';
     renderSeancePhase();
   });
@@ -1049,7 +1081,7 @@ function renderPhaseP3Cours(el) {
       <div class="p3-progress-fill" id="p3-progress-fill" style="width:0%"></div>
     </div>
     <div class="tuto-alert green" style="margin-bottom:1rem">Courez selon le chrono. Votre appli GPS mesure la distance totale.</div>
-    <button class="btn btn-outline" id="btn-terminer-p3">Terminer maintenant</button>`;
+    <button class="btn btn-pulse" id="btn-terminer-p3" style="padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">⏹ Terminer la séance</button>`;
 
   startChronoP3(totalSec, isLibre);
 
@@ -1200,25 +1232,18 @@ function startChrono(dureeSec, mode, onEnd) {
     interval: setInterval(() => {
       remaining--;
       if (remaining < 0) remaining = 0;
+      if (state.seance && mode === 'cours') state.seance._seqRemaining = remaining;
       updateChronoDisplay(remaining, mode);
       if (remaining <= 0) {
         stopChrono();
+        if (state.seance) state.seance.seqRunning = false;
         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         if (onEnd) onEnd();
         else {
-          // Fin de course → passer à saisie
           if (mode === 'cours') { state.seance.phase = 'saisie'; renderSeancePhase(); }
         }
       }
     }, 1000)
-  };
-
-  // Bouton stop
-  const btnStop = $('btn-terminer-seq');
-  if (btnStop) btnStop.onclick = () => {
-    stopChrono();
-    state.seance.phase = 'saisie';
-    renderSeancePhase();
   };
 }
 
