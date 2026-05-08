@@ -818,7 +818,7 @@ function renderPhaseChronoCours(el) {
       <div class="chrono-display ${running ? 'running' : ''}" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
     </div>
     ${running
-      ? `<button class="btn btn-pulse" id="btn-terminer-seq" style="margin-bottom:.75rem;padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">⏹ Arrêter la séquence</button>
+      ? `<button class="btn btn-pulse" id="btn-terminer-seq" style="margin-bottom:.75rem;padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">✅ J'ai terminé la séquence</button>
          <div style="font-size:.75rem;color:var(--muted);text-align:center">Le chrono continue même si vous quittez cette page.</div>`
       : `<button class="btn btn-pulse" id="btn-start-seq" style="padding:1.4rem;font-size:1.3rem">▶ Démarrer la séquence</button>`
     }`;
