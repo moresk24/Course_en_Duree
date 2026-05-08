@@ -1,0 +1,17 @@
+{
+  "name": "Course en Durée J2B",
+  "short_name": "Course J2B",
+  "description": "Application d'entraînement à la course en durée pour les lycéens J2B",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f0a",
+  "theme_color": "#2ecc71",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
