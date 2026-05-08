@@ -615,7 +615,7 @@ function renderProjet() {
         <p>${info.nom} · ${info.intensite}</p>
       </div>
       <div class="fiche-body">
-        <div class="fiche-desc">${info.description}</div>
+        <div class="fiche-desc">${info.description.replace(/\. /g, '.<br><br>')}</div>
         <div class="section-title">Bénéfices</div>
         <ul class="fiche-benefices">
           ${info.benefices.map(b => `<li>${b}</li>`).join('')}
