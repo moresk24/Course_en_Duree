@@ -671,7 +671,7 @@ function renderSeancePrepare(num) {
   html.push(`<div class="seance-header-card">
     <div class="seance-num-label">Séance ${num}</div>
     <div class="seance-subtitle">${info.icon} Projet ${p} — ${info.nom}</div>
-    <div style="margin-top:.4rem;font-size:.8rem;color:var(--muted)">VMA : <strong style="color:var(--text)">${state.vma} km/h</strong> · Allure cible : <strong style="color:var(--text)">${calcAllure(state.vma * (p === 2 ? 0.925 : p === 1 ? 0.725 : 0.625))}</strong></div>
+    <div style="margin-top:.4rem;font-size:.8rem;color:var(--muted)">VMA : <strong style="color:var(--text)">${state.vma} km/h</strong> · Allure cible : <strong style="color:var(--text)">${calcAllure(state.vma * (p === 2 ? 0.925 : p === 1 ? 0.725 : 0.625))}/km</strong></div>
   </div>`);
 
   if (p === 1 || p === 2) {
