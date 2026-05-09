@@ -920,18 +920,27 @@ function renderPhaseSaisie(el) {
     $('ecart-popup-next').textContent  = nextLabel;
     $('ecart-popup').classList.remove('hidden');
 
-    const closeEcart = () => {
-      $('ecart-popup').classList.add('hidden');
-      if (isLast) {
-        s.phase = 'bilan-saisie'; renderSeancePhase();
-      } else if (s.def.recupSec) {
-        s.phase = 'recup'; renderSeancePhase();
-      } else {
-        s.seqIndex++; s.phase = 'cours'; renderSeancePhase();
-      }
-    };
-    $('ecart-popup-close').onclick = closeEcart;
-    $('ecart-popup-next').onclick  = closeEcart;
+    if (!isLast && s.def.recupSec) {
+      // Passer à la récup immédiatement, popup visible par-dessus
+      $('ecart-popup-next').textContent = nextLabel;
+      s.phase = 'recup';
+      renderSeancePhase();
+      $('ecart-popup').classList.remove('hidden');
+      const closeEcart = () => $('ecart-popup').classList.add('hidden');
+      $('ecart-popup-close').onclick = closeEcart;
+      $('ecart-popup-next').onclick  = closeEcart;
+    } else {
+      const closeEcart = () => {
+        $('ecart-popup').classList.add('hidden');
+        if (isLast) {
+          s.phase = 'bilan-saisie'; renderSeancePhase();
+        } else {
+          s.seqIndex++; s.phase = 'cours'; renderSeancePhase();
+        }
+      };
+      $('ecart-popup-close').onclick = closeEcart;
+      $('ecart-popup-next').onclick  = closeEcart;
+    }
   };
 }
 
