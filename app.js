@@ -905,7 +905,8 @@ function renderPhaseSaisie(el) {
     const dureeReelle  = seq.dureeReelle || seq.objectifDuree;
     const vitesseCible = seq.objectifDistance / seq.objectifDuree;
     const vitesseReelle = dist / dureeReelle;
-    const pct = vitesseReelle / vitesseCible;
+    const ratio = vitesseReelle / vitesseCible;
+    const pct = ratio <= 1 ? ratio : 1 / ratio;
     const col = pct >= 0.95 ? 'var(--accent)' : pct >= 0.70 ? 'var(--orange,#e67e22)' : 'var(--red)';
     const isLast = s.seqIndex >= s.sequences.length - 1;
     const nextLabel = isLast ? 'Voir mon bilan' : (s.def.recupSec ? 'Démarrer la récupération' : 'Séquence suivante');
@@ -922,13 +923,12 @@ function renderPhaseSaisie(el) {
 
     if (!isLast && s.def.recupSec) {
       // Passer à la récup immédiatement, popup visible par-dessus
-      $('ecart-popup-next').textContent = nextLabel;
+      $('ecart-popup-next').style.display = 'none';
       s.phase = 'recup';
       renderSeancePhase();
       $('ecart-popup').classList.remove('hidden');
-      const closeEcart = () => $('ecart-popup').classList.add('hidden');
+      const closeEcart = () => { $('ecart-popup').classList.add('hidden'); $('ecart-popup-next').style.display = ''; };
       $('ecart-popup-close').onclick = closeEcart;
-      $('ecart-popup-next').onclick  = closeEcart;
     } else {
       const closeEcart = () => {
         $('ecart-popup').classList.add('hidden');
@@ -1045,8 +1045,9 @@ function renderPhaseBilan(el) {
   const allure       = calcAllure(vitesse);
   const moyPct       = seqsWithDist.length
     ? seqsWithDist.reduce((a, q) => {
-        const dr = q.dureeReelle || q.objectifDuree;
-        return a + Math.min((q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree), 1);
+        const dr    = q.dureeReelle || q.objectifDuree;
+        const ratio = (q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree);
+        return a + (ratio <= 1 ? ratio : 1 / ratio);
       }, 0) / seqsWithDist.length
     : 0;
   const badge = calcBadge(moyPct);
@@ -1055,7 +1056,8 @@ function renderPhaseBilan(el) {
   const rows = s.sequences.map((q, i) => {
     const done = q.distanceReelle !== null;
     const dr   = q.dureeReelle || q.objectifDuree;
-    const pct  = done ? Math.min((q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree), 1) : null;
+    const ratio = done ? (q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree) : null;
+    const pct   = ratio !== null ? (ratio <= 1 ? ratio : 1 / ratio) : null;
     const cls  = !done ? '' : pct >= 0.95 ? 'good' : pct >= 0.70 ? 'medium' : 'bad';
     const overtime = done && dr > q.objectifDuree ? ` <span style="color:var(--red);font-size:.7em">+${fmtTime(dr - q.objectifDuree)}</span>` : '';
     return `<div class="bilan-seq-row">
