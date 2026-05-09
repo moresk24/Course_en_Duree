@@ -231,9 +231,10 @@ function calcAllure(vitesseKmh) {
 }
 
 function fmtTime(seconds) {
-  const m = Math.floor(Math.abs(seconds) / 60);
-  const s = Math.abs(seconds) % 60;
-  return m + ':' + s.toString().padStart(2, '0');
+  const abs = Math.abs(seconds);
+  const m = Math.floor(abs / 60);
+  const s = abs % 60;
+  return (seconds < 0 ? '-' : '') + m + ':' + s.toString().padStart(2, '0');
 }
 
 function fmtDureeLabel(seconds) {

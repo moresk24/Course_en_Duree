@@ -319,6 +319,29 @@ function enterApp() {
 
   // Déconnexion
   $('btn-logout').onclick = logout;
+  $('btn-hmenu-save').onclick = () => {
+    closeHamburger();
+    const s = state.seance;
+    if (!s) return;
+    const seqsDone = s.sequences.filter(q => q.distanceReelle !== null && q.distanceReelle > 0);
+    if (!seqsDone.length) { toast('Aucune séquence complétée à enregistrer.', 'error'); return; }
+    const distTotale = seqsDone.reduce((a, q) => a + q.distanceReelle, 0);
+    const dureeDone  = seqsDone.length * (s.def ? s.def.dureeSec : 0);
+    const vitesse    = dureeDone > 0 ? Math.round((distTotale / 1000) / (dureeDone / 3600) * 10) / 10 : 0;
+    const allure     = calcAllure(vitesse);
+    const moyPct     = seqsDone.reduce((a, q) => a + Math.min(q.distanceReelle / q.objectifDistance, 1), 0) / seqsDone.length;
+    const badge      = calcBadge(moyPct);
+    const data = {
+      date: todayISO(), vma: state.vma, partielle: true,
+      sequences: s.sequences.map(q => ({
+        numero: q.numero, objectifDistance: q.objectifDistance,
+        objectifDuree: q.objectifDuree, distanceReelle: q.distanceReelle || 0,
+      })),
+      distanceTotale: distTotale, vitesseKmh: vitesse, allureMinKm: allure,
+      ressenti: s.ressenti || null, badge,
+    };
+    saveSeanceData(s.num, data);
+  };
 }
 
 function updateTopbar() {
@@ -327,6 +350,10 @@ function updateTopbar() {
   $('tb-projet-label').textContent = pInfo ? 'Projet ' + state.projet : '';
   const next = nextSeanceNum(state.seances, state.config.nb_seances_cycle || 6);
   $('tb-seance-label').textContent = next ? ' · S' + next : '';
+
+  const hasSeance = !!(state.seance && state.seance.phase !== 'bilan');
+  $('btn-hmenu-save').style.display   = hasSeance ? '' : 'none';
+  $('hmenu-sep-save').style.display   = hasSeance ? '' : 'none';
 }
 
 function logout() {
@@ -768,6 +795,7 @@ function startSeance(num) {
     };
   }
 
+  updateTopbar();
   renderSeancePhase();
 }
 
@@ -827,6 +855,7 @@ function renderPhaseChronoCours(el) {
     $('btn-terminer-seq').onclick = () => {
       stopChrono();
       s.seqRunning = false;
+      seq.dureeReelle = seq.objectifDuree - (s._seqRemaining ?? 0);
       s.phase = 'saisie';
       renderSeancePhase();
     };
@@ -999,7 +1028,7 @@ function renderPhaseBilan(el) {
 
   const seqsWithDist = s.sequences.filter(q => q.distanceReelle !== null);
   const distTotale   = seqsWithDist.reduce((a, q) => a + q.distanceReelle, 0);
-  const dureeTotal   = s.sequences.length * s.def.dureeSec;
+  const dureeTotal   = seqsWithDist.reduce((a, q) => a + (q.dureeReelle || q.objectifDuree), 0);
   const vitesse      = distTotale > 0 ? Math.round((distTotale / 1000) / (dureeTotal / 3600) * 10) / 10 : 0;
   const allure       = calcAllure(vitesse);
   const moyPct       = seqsWithDist.length
@@ -1048,6 +1077,7 @@ function renderPhaseBilan(el) {
         numero: q.numero,
         objectifDistance: q.objectifDistance,
         objectifDuree:    q.objectifDuree,
+        dureeReelle:      q.dureeReelle || q.objectifDuree,
         distanceReelle:   q.distanceReelle || 0,
       })),
       distanceTotale: distTotale,
@@ -1193,7 +1223,7 @@ function renderPhaseSaisieP3(el) {
       await saveSeanceData(s.num, data);
     };
 
-    $('btn-annuler-seance').onclick = () => { state.seance = null; renderSeancePage(); };
+    $('btn-annuler-seance').onclick = () => { state.seance = null; updateTopbar(); renderSeancePage(); };
   };
 }
 
@@ -1242,16 +1272,16 @@ function startChrono(dureeSec, mode, onEnd) {
   state.chrono = {
     interval: setInterval(() => {
       remaining--;
-      if (remaining < 0) remaining = 0;
       if (state.seance && mode === 'cours') state.seance._seqRemaining = remaining;
       updateChronoDisplay(remaining, mode);
-      if (remaining <= 0) {
-        stopChrono();
-        if (state.seance) state.seance.seqRunning = false;
+
+      if (remaining === 0) {
         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-        if (onEnd) onEnd();
-        else {
-          if (mode === 'cours') { state.seance.phase = 'saisie'; renderSeancePhase(); }
+        // Mode cours : on continue en négatif, l'élève arrête lui-même
+        if (mode !== 'cours') {
+          stopChrono();
+          if (state.seance) state.seance.seqRunning = false;
+          if (onEnd) onEnd();
         }
       }
     }, 1000)
@@ -1328,7 +1358,8 @@ function updateChronoDisplay(remaining, mode) {
   const disp = $('chrono-display');
   if (disp) {
     disp.textContent = fmtTime(remaining);
-    disp.className   = 'chrono-display ' + (mode === 'recup' ? 'recup' : 'running');
+    const cls = mode === 'recup' ? 'recup' : (remaining < 0 ? 'overtime' : 'running');
+    disp.className = 'chrono-display ' + cls;
   }
 }
 

@@ -361,8 +361,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 .chrono-display     {
   font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: .04em; line-height: 1;
 }
-.chrono-display.running { color: var(--accent) }
-.chrono-display.recup   { color: var(--blue) }
+.chrono-display.running  { color: var(--accent) }
+.chrono-display.recup    { color: var(--blue) }
+.chrono-display.overtime { color: var(--red) }
 .chrono-objectif    { font-size: .78rem; color: var(--muted); margin-top: .5rem }
 .chrono-objectif span { color: var(--text); font-weight: 700 }
 
