@@ -358,12 +358,25 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 
 /* Chronomètre */
 .chrono-card {
-  background: var(--s1); border: 2px solid var(--border); border-radius: 18px;
-  padding: 1.5rem 1rem; text-align: center; margin-bottom: 1rem;
-  transition: border-color .3s;
+  background: none; border: none;
+  padding: 0; text-align: center; margin-bottom: 1rem;
+  position: relative;
+  min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.chrono-card.running { border-color: var(--accent) }
-.chrono-card.recup   { border-color: var(--blue) }
+@media (min-width: 480px) { .chrono-card { min-height: 250px } }
+.chrono-card::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -48%);
+  width: 150px; height: 184px;
+  background: url('chrono.png') no-repeat center / contain;
+  opacity: .12; pointer-events: none; filter: invert(1);
+}
+[data-theme="light"] .chrono-card::before { filter: none; opacity: .1 }
+@media (min-width: 480px) {
+  .chrono-card::before { width: 200px; height: 245px }
+}
+.chrono-card.running { }
+.chrono-card.recup   { }
 .chrono-phase-label  {
   font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
   color: var(--muted); margin-bottom: .5rem;

@@ -853,27 +853,27 @@ function renderPhaseChronoCours(el) {
       <div class="seance-num-label">Séance ${s.num}</div>
       <div class="seance-subtitle">Séquence ${s.seqIndex + 1} / ${s.sequences.length}</div>
     </div>
-    <div class="chrono-card ${running ? 'running' : ''}" id="chrono-card">
-      <div class="chrono-phase-label ${running ? 'running' : ''}">
-        ${running ? 'Course en cours' : 'Prêt à partir ?'}
-      </div>
-      <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:.75rem">
-        <div style="text-align:center">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);line-height:1">${seq.objectifDistance}</div>
-          <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">mètres cibles</div>
-        </div>
-        <div style="width:1px;background:var(--border)"></div>
-        <div style="text-align:center">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1">${fmtDureeLabel(seq.objectifDuree)}</div>
-          <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">durée</div>
-        </div>
-      </div>
-      <div class="chrono-display ${running ? 'running' : ''}" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
-      ${s.def.recupSec && s.seqIndex < s.sequences.length - 1
-        ? `<div style="font-size:.78rem;color:var(--blue);margin-top:.5rem">⏸ Récupération après : ${fmtDureeLabel(s.def.recupSec)}</div>`
-        : (s.seqIndex === s.sequences.length - 1 ? `<div style="font-size:.78rem;color:var(--muted);margin-top:.5rem">Dernière séquence — pas de récupération</div>` : '')
-      }
+    <div class="chrono-phase-label ${running ? 'running' : ''}" style="text-align:center;margin-bottom:.5rem">
+      ${running ? 'Course en cours' : 'Prêt à partir ?'}
     </div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:.75rem">
+      <div style="text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);line-height:1">${seq.objectifDistance}</div>
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">mètres cibles</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1">${fmtDureeLabel(seq.objectifDuree)}</div>
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">durée</div>
+      </div>
+    </div>
+    <div class="chrono-card ${running ? 'running' : ''}" id="chrono-card">
+      <div class="chrono-display ${running ? 'running' : ''}" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
+    </div>
+    ${s.def.recupSec && s.seqIndex < s.sequences.length - 1
+      ? `<div class="recup-info-banner" style="margin-bottom:.75rem">⏸ Récupération après : <strong>${fmtDureeLabel(s.def.recupSec)}</strong></div>`
+      : (s.seqIndex === s.sequences.length - 1 ? `<div style="font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:.75rem">Dernière séquence — pas de récupération</div>` : '')
+    }
     ${running
       ? `<button class="btn btn-pulse" id="btn-terminer-seq" style="margin-bottom:.75rem;padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">✅ J'ai terminé la séquence</button>
          <div style="font-size:.75rem;color:var(--muted);text-align:center">Le chrono continue même si vous quittez cette page.</div>`
