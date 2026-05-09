@@ -366,12 +366,12 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 @media (min-width: 480px) { .chrono-card { min-height: 250px } }
 .chrono-card::before {
   content: ''; position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -48%);
+  transform: translate(-50%, -58%);
   width: 150px; height: 184px;
   background: url('chrono.png') no-repeat center / contain;
-  opacity: .12; pointer-events: none; filter: invert(1);
+  opacity: .25; pointer-events: none; filter: invert(1);
 }
-[data-theme="light"] .chrono-card::before { filter: none; opacity: .1 }
+[data-theme="light"] .chrono-card::before { filter: none; opacity: .2 }
 @media (min-width: 480px) {
   .chrono-card::before { width: 200px; height: 245px }
 }

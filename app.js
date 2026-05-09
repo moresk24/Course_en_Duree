@@ -983,11 +983,11 @@ function renderPhaseRecup(el) {
       <div class="seance-num-label">Récupération</div>
       <div class="seance-subtitle">Séquence suivante dans…</div>
     </div>
+    <div class="chrono-phase-label recup" style="text-align:center;margin-bottom:.5rem">Récupération active</div>
     <div class="chrono-card recup" id="chrono-card">
-      <div class="chrono-phase-label recup">Récupération active</div>
       <div class="chrono-display recup" id="chrono-display">${fmtTime(s.def.recupSec)}</div>
-      <div style="margin-top:.75rem;background:rgba(61,139,255,.12);border:1px solid rgba(61,139,255,.3);border-radius:10px;padding:.65rem 1rem;font-size:1rem;font-weight:700;color:var(--blue)">🚶 Marchez ou trottinez doucement</div>
     </div>
+    <div style="background:rgba(61,139,255,.12);border:1px solid rgba(61,139,255,.3);border-radius:10px;padding:.65rem 1rem;font-size:1rem;font-weight:700;color:var(--blue);text-align:center;margin-bottom:.75rem">🚶 Marchez ou trottinez doucement</div>
     <button class="btn btn-pulse" id="btn-passer-recup" style="padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--blue),#5b9fff)">▶ Séquence suivante</button>`;
 
   $('btn-passer-recup').onclick = () => {
