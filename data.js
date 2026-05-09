@@ -219,7 +219,7 @@ function calcBadge(pctMoyen) {
   if (pctMoyen >= 0.95) return 'Or';
   if (pctMoyen >= 0.85) return 'Argent';
   if (pctMoyen >= 0.75) return 'Bronze';
-  return 'Carton';
+  return 'Carton Rouge';
 }
 
 function calcAllure(vitesseKmh) {
@@ -253,7 +253,7 @@ function nextSeanceNum(seances, nbMax) {
 }
 
 function badgeEmoji(badge) {
-  return { Or: '🥇', Argent: '🥈', Bronze: '🥉', Carton: '🟥' }[badge] || '—';
+  return { Or: '🥇', Argent: '🥈', Bronze: '🥉', 'Carton Rouge': '🟥' }[badge] || '—';
 }
 
 function badgeColor(badge) {
@@ -261,7 +261,7 @@ function badgeColor(badge) {
     Or:     'var(--yellow)',
     Argent: 'var(--muted)',
     Bronze: '#cd7f32',
-    Carton: 'var(--red)'
+    'Carton Rouge': 'var(--red)'
   }[badge] || 'var(--muted)';
 }
 
