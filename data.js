@@ -253,7 +253,7 @@ function nextSeanceNum(seances, nbMax) {
 }
 
 function badgeEmoji(badge) {
-  return { Or: '🥇', Argent: '🥈', Bronze: '🥉', Carton: '📦' }[badge] || '—';
+  return { Or: '🥇', Argent: '🥈', Bronze: '🥉', Carton: '🟥' }[badge] || '—';
 }
 
 function badgeColor(badge) {
