@@ -100,6 +100,11 @@ function showTutoLogin() {
 const LOGIN_KEY   = 'course_login';
 const PREFILL_KEY = 'course_prefill';
 
+// DEV — connexion automatique (à supprimer avant mise en prod)
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+  localStorage.setItem(LOGIN_KEY, JSON.stringify({ classe:'1ST2S_AB', nom:'ABBANE', prenom:'Amir', mdp:'xxxxxx' }));
+}
+
 function getSavedLogin()    { try { return JSON.parse(localStorage.getItem(LOGIN_KEY))   || null; } catch (_) { return null; } }
 function getPrefill()       { try { return JSON.parse(localStorage.getItem(PREFILL_KEY)) || null; } catch (_) { return null; } }
 function saveLogin(o)       { localStorage.setItem(LOGIN_KEY, JSON.stringify(o)); }
