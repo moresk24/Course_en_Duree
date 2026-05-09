@@ -853,10 +853,10 @@ function renderPhaseChronoCours(el) {
       <div class="seance-num-label">Séance ${s.num}</div>
       <div class="seance-subtitle">Séquence ${s.seqIndex + 1} / ${s.sequences.length}</div>
     </div>
-    <div class="chrono-phase-label ${running ? 'running' : ''}" style="text-align:center;margin-bottom:.5rem">
+    <div class="chrono-phase-label ${running ? 'running' : ''}" style="text-align:center;margin-bottom:1.5rem">
       ${running ? 'Course en cours' : 'Prêt à partir ?'}
     </div>
-    <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:.75rem">
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:1.5rem">
       <div style="text-align:center">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);line-height:1">${seq.objectifDistance}</div>
         <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">mètres cibles</div>
@@ -983,7 +983,7 @@ function renderPhaseRecup(el) {
       <div class="seance-num-label">Récupération</div>
       <div class="seance-subtitle">Séquence suivante dans…</div>
     </div>
-    <div class="chrono-phase-label recup" style="text-align:center;margin-bottom:.5rem">Récupération active</div>
+    <div class="chrono-phase-label recup" style="text-align:center;margin-bottom:1.5rem">Récupération active</div>
     <div class="chrono-card recup" id="chrono-card">
       <div class="chrono-display recup" id="chrono-display">${fmtTime(s.def.recupSec)}</div>
     </div>
