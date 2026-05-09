@@ -569,6 +569,57 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 .ressource-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .05em }
 
 /* ═══════════════════════════════════════════
+   PAGE PROGRAMME
+═══════════════════════════════════════════ */
+.prog-projet-card {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1rem; margin-bottom: 1rem; overflow: hidden;
+}
+.prog-color-blue   { border-left: 4px solid var(--blue) }
+.prog-color-orange { border-left: 4px solid var(--orange) }
+.prog-color-green  { border-left: 4px solid var(--green) }
+.prog-projet-header {
+  display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem;
+}
+.prog-projet-icon   { font-size: 1.6rem; line-height: 1 }
+.prog-projet-nom    { font-weight: 700; font-size: .95rem }
+.prog-projet-intensite { font-size: .78rem; color: var(--muted); margin-top: .1rem }
+.prog-mon-projet {
+  margin-left: auto; font-size: .72rem; font-weight: 700; color: var(--accent);
+  background: rgba(46,204,113,.1); border: 1px solid var(--accent);
+  border-radius: 20px; padding: .2rem .6rem; white-space: nowrap;
+}
+.prog-seances { display: flex; flex-direction: column; gap: .35rem }
+.prog-seance-row {
+  display: flex; align-items: baseline; gap: .6rem;
+  font-size: .85rem; padding: .35rem .5rem; border-radius: 8px; background: var(--s2);
+}
+.prog-seance-num   { font-family: 'Bebas Neue', sans-serif; font-size: .95rem; color: var(--accent); flex-shrink: 0; width: 1.6rem }
+.prog-seance-desc  { flex: 1; line-height: 1.4 }
+.prog-seance-total { color: var(--muted); font-size: .8rem }
+/* ─── Échauffement / retour au calme ─────────────── */
+.echauff-steps { display: flex; flex-direction: column; gap: .5rem }
+.echauff-step  {
+  display: flex; align-items: flex-start; gap: .7rem;
+  background: var(--s2); border-radius: 10px; padding: .6rem .85rem;
+  font-size: .88rem; line-height: 1.5;
+}
+.echauff-step-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+  color: var(--accent); flex-shrink: 0; width: 1.1rem; line-height: 1.4;
+}
+.echauff-step-sprint { border: 1px dashed var(--border) }
+
+.prog-retour-calme {
+  margin-top: .5rem; padding: .6rem .75rem;
+  background: rgba(230,126,34,.08); border: 1px solid rgba(230,126,34,.25);
+  border-radius: 8px;
+}
+.prog-retour-calme-label { font-size: .75rem; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem }
+.prog-retour-calme-item  { font-size: .83rem; color: var(--text); line-height: 1.5 }
+.prog-retour-calme-item::before { content: '• '; color: var(--orange) }
+
+/* ═══════════════════════════════════════════
    TOAST
 ═══════════════════════════════════════════ */
 .toast {

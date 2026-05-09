@@ -58,7 +58,7 @@ async function api(params) {
 // ═══════════════════════════════════════════════════
 //  NAVIGATION SPA
 // ═══════════════════════════════════════════════════
-const PAGES = ['accueil', 'projet', 'seance', 'progression', 'lexique', 'tuto'];
+const PAGES = ['accueil', 'projet', 'seance', 'progression', 'lexique', 'tuto', 'programme'];
 let _currentPage = 'accueil';
 
 function showPage(name) {
@@ -87,6 +87,7 @@ function showPage(name) {
   if (name === 'progression')  renderProgression();
   if (name === 'lexique')      renderLexique();
   if (name === 'tuto')         renderTuto();
+  if (name === 'programme')    renderProgramme();
 }
 
 function showTutoLogin() {
@@ -356,7 +357,7 @@ function updateTopbar() {
   const next = nextSeanceNum(state.seances, state.config.nb_seances_cycle || 6);
   $('tb-seance-label').textContent = next ? ' · S' + next : '';
 
-  const hasSeance = !!(state.seance && state.seance.phase !== 'bilan');
+  const hasSeance = !!(state.seance && state.seance.phase !== 'bilan' && state.seance.phase !== 'echauffement');
   $('btn-hmenu-save').style.display   = hasSeance ? '' : 'none';
   $('hmenu-sep-save').style.display   = hasSeance ? '' : 'none';
 }
@@ -803,7 +804,7 @@ function startSeance(num) {
       num, projet: p, def,
       sequences,
       seqIndex: 0,
-      phase: 'cours',     // cours | saisie | recup | bilan
+      phase: 'echauffement',
       seqRunning: false,
       ressenti: null,
     };
@@ -812,7 +813,7 @@ function startSeance(num) {
     state.seance = {
       num, projet: p, def,
       sequences: [],
-      phase: 'p3-cours',  // p3-cours | p3-saisie | bilan
+      phase: 'echauffement',
       p3Blocks:    blocks,
       p3BlockIdx:  0,
       p3TotalSec:  30 * 60,
@@ -832,14 +833,77 @@ function renderSeancePhase() {
   if (!s) return;
 
   switch (s.phase) {
-    case 'cours':        renderPhaseChronoCours(el); break;
-    case 'saisie':       renderPhaseSaisie(el);      break;
+    case 'echauffement': renderPhaseEchauffement(el); break;
+    case 'cours':        renderPhaseChronoCours(el);  break;
+    case 'saisie':       renderPhaseSaisie(el);       break;
     case 'recup':        renderPhaseRecup(el);        break;
+    case 'retour_calme': renderPhaseRetourCalme(el);  break;
     case 'bilan-saisie': // fallthrough intentionnel
     case 'bilan':        renderPhaseBilan(el);        break;
     case 'p3-cours':     renderPhaseP3Cours(el);     break;
     case 'p3-saisie':    renderPhaseSaisieP3(el);    break;
   }
+}
+
+// ─── Phase : échauffement (tous projets) ────────────────────
+function renderPhaseEchauffement(el) {
+  const s = state.seance;
+  const DUREE = 12 * 60;
+
+  el.innerHTML = `
+    <div class="seance-header-card">
+      <div class="seance-num-label">Séance ${s.num}</div>
+      <div class="seance-subtitle">Échauffement</div>
+    </div>
+    <div class="chrono-phase-label running" style="text-align:center;margin-bottom:1rem">🔥 Avant de commencer</div>
+    <div class="echauff-steps" style="margin-bottom:1.25rem">
+      <div class="echauff-step"><span class="echauff-step-num">1</span><span>6 min de <strong>footing très léger</strong> en continu</span></div>
+      <div class="echauff-step"><span class="echauff-step-num">2</span><span>6 min de <strong>déplacements éducatifs</strong> — montées de genoux, talons-fesses, pas chassés, foulées bondissantes</span></div>
+      <div class="echauff-step echauff-step-sprint"><span class="echauff-step-num">3</span><span>3 <strong>lignes droites progressives</strong> avec accélérations contrôlées sur 30–40 m <em>(après le chrono)</em></span></div>
+    </div>
+    <div class="chrono-card running" id="chrono-card">
+      <div class="chrono-display running" id="chrono-display">${fmtTime(DUREE)}</div>
+    </div>
+    <button class="btn" id="btn-passer-echauff" style="margin-top:1rem;background:var(--s3);color:var(--muted);border:1px solid var(--border)">Passer l'échauffement</button>`;
+
+  const goNext = () => {
+    stopChrono();
+    s.phase = s.projet === 3 ? 'p3-cours' : 'cours';
+    renderSeancePhase();
+  };
+
+  $('btn-passer-echauff').onclick = goNext;
+  startChrono(DUREE, 'recup', goNext);
+}
+
+// ─── Phase : retour au calme (P2 uniquement) ────────────────
+function renderPhaseRetourCalme(el) {
+  const s = state.seance;
+  const DUREE = 6 * 60;
+
+  el.innerHTML = `
+    <div class="seance-header-card">
+      <div class="seance-num-label">Séance ${s.num}</div>
+      <div class="seance-subtitle">Retour au calme</div>
+    </div>
+    <div class="chrono-phase-label recup" style="text-align:center;margin-bottom:1rem">Toutes les séquences sont terminées !</div>
+    <div class="echauff-steps" style="margin-bottom:1.25rem">
+      <div class="echauff-step"><span class="echauff-step-num">1</span><span>4 min de <strong>footing très lent</strong></span></div>
+      <div class="echauff-step"><span class="echauff-step-num">2</span><span>2 min de <strong>marche</strong> en respiration contrôlée</span></div>
+    </div>
+    <div class="chrono-card recup" id="chrono-card">
+      <div class="chrono-display recup" id="chrono-display">${fmtTime(DUREE)}</div>
+    </div>
+    <button class="btn" id="btn-passer-calme" style="margin-top:1rem;background:var(--s3);color:var(--muted);border:1px solid var(--border)">Passer — voir mon bilan</button>`;
+
+  const goNext = () => {
+    stopChrono();
+    s.phase = 'bilan';
+    renderSeancePhase();
+  };
+
+  $('btn-passer-calme').onclick = goNext;
+  startChrono(DUREE, 'recup', goNext);
 }
 
 // ─── Phase : chrono course (P1/P2) ──────────────────────────
@@ -962,7 +1026,8 @@ function renderPhaseSaisie(el) {
       const closeEcart = () => {
         $('ecart-popup').classList.add('hidden');
         if (isLast) {
-          s.phase = 'bilan'; renderSeancePhase();
+          s.phase = s.projet === 2 ? 'retour_calme' : 'bilan';
+          renderSeancePhase();
         } else {
           s.seqIndex++; s.phase = 'cours'; renderSeancePhase();
         }
@@ -1398,17 +1463,25 @@ function renderProgression() {
   const reels     = [];
   for (let i = 1; i <= nb; i++) {
     const def = SEANCES_PROJETS[p][i - 1];
+    const s   = state.seances['S' + i];
     let obj;
-    if (p === 1 || p === 2) {
+    if (s && s.sequences && s.sequences.length) {
+      // Séance déjà effectuée : utiliser les objectifs stockés (VMA de la séance)
+      obj = s.sequences.reduce((acc, sq) => acc + (sq.objectifDistance || 0), 0);
+    } else if (p === 1 || p === 2) {
       const dureeMin = def.dureeSec / 60;
       obj = calcDistanceCible(p, state.vma, dureeMin) * def.nbSeq;
     } else {
       obj = calcDistanceObjectifP3(state.vma);
     }
     objectifs.push(obj);
-
-    const s = state.seances['S' + i];
     reels.push(s ? (s.distanceTotale || 0) : null);
+  }
+
+  const pcts = [];
+  for (let i = 1; i <= nb; i++) {
+    const s = state.seances['S' + i];
+    pcts.push(calcPctSeance(s));
   }
 
   html.push(`<div class="progression-chart">
@@ -1420,6 +1493,11 @@ function renderProgression() {
     </div>
   </div>`);
 
+  html.push(`<div class="progression-chart">
+    <div class="progression-chart-title">% de réussite par séance</div>
+    ${buildSVGPctChart(pcts, nb)}
+  </div>`);
+
   html.push(`<div class="section-title">Détail des séances</div>`);
   for (let i = 1; i <= nb; i++) {
     const s = state.seances['S' + i];
@@ -1429,11 +1507,12 @@ function renderProgression() {
         <div class="prog-seq-info" style="color:var(--muted)">Non effectuée</div>
       </div>`);
     } else {
+      const pct = pcts[i - 1];
       html.push(`<div class="progression-seance-row">
         <div class="prog-seq-num">S${i}</div>
         <div class="prog-seq-info">
           <div class="prog-seq-dist">${s.distanceTotale} m · ${s.vitesseKmh} km/h</div>
-          <div class="prog-seq-date">${s.date || ''} · Ressenti : ${s.ressenti || '—'}</div>
+          <div class="prog-seq-date">${s.date || ''} · Ressenti : ${s.ressenti || '—'}${pct !== null ? ` · <strong>${pct} % de réussite</strong>` : ''}</div>
         </div>
         <div class="prog-seq-badge">${badgeEmoji(s.badge)}</div>
       </div>`);
@@ -1443,14 +1522,82 @@ function renderProgression() {
   el.innerHTML = html.join('');
 }
 
-function buildSVGChart(objectifs, reels, nb) {
+function calcPctSeance(s) {
+  if (!s || !s.sequences || !s.sequences.length) return null;
+  const seqs = s.sequences.filter(q => q.distanceReelle > 0);
+  if (!seqs.length) return null;
+  const sum = seqs.reduce((a, q) => {
+    const dr    = q.dureeReelle || q.objectifDuree;
+    const ratio = (q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree);
+    return a + (ratio <= 1 ? ratio : 1 / ratio);
+  }, 0);
+  return Math.round(sum / seqs.length * 100);
+}
+
+function buildSVGPctChart(pcts, nb) {
   const W = 300, H = 160;
+  const pL = 42, pR = 10, pT = 12, pB = 28;
+  const cW = W - pL - pR;
+  const cH = H - pT - pB;
+  const maxY = 105;
+  const xOf = i => pL + (i / (nb - 1)) * cW;
+  const yOf = v => pT + cH - (v / maxY) * cH;
+
+  let svg = '';
+
+  // Zones colorées (de bas en haut)
+  const zones = [
+    { from: 0,  to: 75, color: 'rgba(231,76,60,.12)' },
+    { from: 75, to: 85, color: 'rgba(205,127,50,.18)' },
+    { from: 85, to: 95, color: 'rgba(180,180,180,.15)' },
+    { from: 95, to: maxY, color: 'rgba(241,196,15,.18)' },
+  ];
+  zones.forEach(z => {
+    const y1 = yOf(z.to); const y2 = yOf(z.from);
+    svg += `<rect x="${pL}" y="${y1}" width="${cW}" height="${y2 - y1}" fill="${z.color}"/>`;
+  });
+
+  // Lignes de grille + labels Y
+  [0, 25, 50, 75, 85, 95, 100].forEach(v => {
+    const y = yOf(v);
+    const isDash = v === 75 || v === 85 || v === 95;
+    svg += `<line x1="${pL}" y1="${y}" x2="${W - pR}" y2="${y}" stroke="var(--border)" stroke-width="${isDash ? 1 : 0.5}" stroke-dasharray="${isDash ? '3,2' : ''}"/>`;
+    if (v > 0) svg += `<text x="${pL - 3}" y="${y + 3.5}" font-size="7.5" fill="var(--muted)" text-anchor="end">${v}%</text>`;
+  });
+
+  // Labels X
+  for (let i = 0; i < nb; i++) {
+    svg += `<text x="${xOf(i)}" y="${H - 6}" font-size="9" fill="var(--muted)" text-anchor="middle">S${i + 1}</text>`;
+  }
+
+  // Ligne 100 % (objectif)
+  svg += `<line x1="${pL}" y1="${yOf(100)}" x2="${W - pR}" y2="${yOf(100)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+
+  // Ligne réalisé
+  const pts = pcts.map((v, i) => v !== null ? `${xOf(i)},${yOf(v)}` : null).filter(Boolean);
+  if (pts.length > 1) {
+    svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  }
+
+  // Points colorés par zone
+  pcts.forEach((v, i) => {
+    if (v === null) return;
+    const col = v >= 95 ? 'var(--yellow)' : v >= 85 ? 'var(--muted)' : v >= 75 ? '#cd7f32' : 'var(--red)';
+    svg += `<circle cx="${xOf(i)}" cy="${yOf(v)}" r="4.5" fill="${col}" stroke="var(--bg)" stroke-width="1.5"/>`;
+    svg += `<text x="${xOf(i)}" y="${yOf(v) - 7}" font-size="8" fill="${col}" text-anchor="middle">${v}%</text>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" style="font-family:'DM Sans',sans-serif">${svg}</svg>`;
+}
+
+function buildSVGChart(objectifs, reels, nb) {
+  const W = 300, H = 130;
   const pL = 42, pR = 10, pT = 12, pB = 28;
   const cW = W - pL - pR;
   const cH = H - pT - pB;
 
   const allVals = [...objectifs, ...reels.filter(v => v !== null)];
-  if (!allVals.length) return '<svg viewBox="0 0 300 160" class="chart-svg"></svg>';
+  if (!allVals.length) return '<svg viewBox="0 0 300 130" class="chart-svg"></svg>';
 
   const maxV = Math.max(...allVals) * 1.1;
   const xOf  = i => pL + (i / (nb - 1)) * cW;
@@ -1629,6 +1776,94 @@ function renderTuto() {
     <div class="tuto-alert green" style="margin-bottom:.75rem">
       <strong>💾 Séance interrompue ?</strong> Utilisez le menu ☰ en haut à droite pour enregistrer votre séance même si toutes les séquences n'ont pas été effectuées.
     </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  PAGE PROGRAMME
+// ═══════════════════════════════════════════════════
+function renderProgramme() {
+  const el = $('page-programme');
+
+  function seanceRow(s, projet) {
+    if (projet === 3) {
+      if (s.libre) {
+        return `<div class="prog-seance-row">
+          <span class="prog-seance-num">S${s.num}</span>
+          <span class="prog-seance-desc">30 min libres — le moins de marche possible</span>
+        </div>`;
+      }
+      const course = s.cycles.find(c => c.type === 'course');
+      const marche = s.cycles.find(c => c.type === 'marche');
+      const totalSec = s.nb * s.cycles.reduce((a, c) => a + c.duree, 0);
+      return `<div class="prog-seance-row">
+        <span class="prog-seance-num">S${s.num}</span>
+        <span class="prog-seance-desc">${fmtDureeLabel(course.duree)} course / ${fmtDureeLabel(marche.duree)} marche × ${s.nb} <span class="prog-seance-total">(${fmtDureeLabel(totalSec)} total)</span></span>
+      </div>`;
+    }
+    const recup = s.recupSec > 0 ? ` — récup. ${fmtDureeLabel(s.recupSec)}` : ' — continu';
+    const seq = s.nbSeq > 1 ? `${s.nbSeq} × ${fmtDureeLabel(s.dureeSec)}` : fmtDureeLabel(s.dureeSec);
+    return `<div class="prog-seance-row">
+      <span class="prog-seance-num">S${s.num}</span>
+      <span class="prog-seance-desc">${seq}<span class="prog-seance-total">${recup}</span></span>
+    </div>`;
+  }
+
+  const projetsHTML = [1, 2, 3].map(p => {
+    const info = PROJETS_INFO[p];
+    const seances = SEANCES_PROJETS[p];
+    const isMonProjet = parseInt(state.projet) === p;
+    return `
+      <div class="prog-projet-card prog-color-${info.couleur}">
+        <div class="prog-projet-header">
+          <span class="prog-projet-icon">${info.icon}</span>
+          <div>
+            <div class="prog-projet-nom">${info.nom}</div>
+            <div class="prog-projet-intensite">${info.intensite}</div>
+          </div>
+          ${isMonProjet ? '<span class="prog-mon-projet">Votre projet</span>' : ''}
+        </div>
+        <div class="prog-seances">
+          ${seances.map(s => seanceRow(s, p)).join('')}
+          ${p === 2 ? `
+          <div class="prog-retour-calme">
+            <div class="prog-retour-calme-label">Récupération active (toutes séances)</div>
+            <div class="prog-retour-calme-item">4 min de footing très lent</div>
+            <div class="prog-retour-calme-item">2 min de marche en respiration contrôlée</div>
+          </div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="ressource-header">
+      <div class="ressource-title">📋 Programme</div>
+    </div>
+
+    <div class="prog-projet-card" style="border-left:4px solid var(--muted);margin-bottom:1.25rem">
+      <div class="prog-projet-header">
+        <span class="prog-projet-icon">🔥</span>
+        <div>
+          <div class="prog-projet-nom">Échauffement</div>
+          <div class="prog-projet-intensite">Identique pour tous les projets</div>
+        </div>
+      </div>
+      <div class="prog-seances">
+        <div class="prog-seance-row">
+          <span class="prog-seance-num" style="width:1.4rem;font-family:'DM Sans',sans-serif;font-weight:700">1</span>
+          <span class="prog-seance-desc">6 min de footing très léger en continu <span class="prog-seance-total">— installer la course, faire monter la température corporelle</span></span>
+        </div>
+        <div class="prog-seance-row">
+          <span class="prog-seance-num" style="width:1.4rem;font-family:'DM Sans',sans-serif;font-weight:700">2</span>
+          <span class="prog-seance-desc">6 min de déplacements éducatifs <span class="prog-seance-total">— montées de genoux, talons-fesses, pas chassés, foulées bondissantes</span></span>
+        </div>
+        <div class="prog-seance-row">
+          <span class="prog-seance-num" style="width:1.4rem;font-family:'DM Sans',sans-serif;font-weight:700">3</span>
+          <span class="prog-seance-desc">3 lignes droites progressives avec accélérations contrôlées sur 30–40 m <span class="prog-seance-total">— entrer dans l'effort sans partir trop vite</span></span>
+        </div>
+      </div>
+    </div>
+
+    ${projetsHTML}`;
 }
 
 // ═══════════════════════════════════════════════════
