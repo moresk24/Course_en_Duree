@@ -196,7 +196,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 }
 [data-theme="light"] .login-hero::before { filter: none; opacity: .07 }
 .login-hero > * { position: relative; z-index: 1 }
-.login-icon    { font-size: 4rem; line-height: 1; margin-bottom: .5rem }
+.login-icon    { font-size: 5.5rem; line-height: 1; margin-bottom: .5rem }
 .login-logo    {
   font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: .04em; line-height: 1;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
