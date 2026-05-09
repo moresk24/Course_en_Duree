@@ -902,15 +902,21 @@ function renderPhaseSaisie(el) {
     if (!dist || dist < 0 || dist > 5000) { toast('Saisissez une distance valide.', 'error'); return; }
 
     seq.distanceReelle = dist;
-    const pct = dist / seq.objectifDistance;
+    const dureeReelle  = seq.dureeReelle || seq.objectifDuree;
+    const vitesseCible = seq.objectifDistance / seq.objectifDuree;
+    const vitesseReelle = dist / dureeReelle;
+    const pct = vitesseReelle / vitesseCible;
     const col = pct >= 0.95 ? 'var(--accent)' : pct >= 0.70 ? 'var(--orange,#e67e22)' : 'var(--red)';
     const isLast = s.seqIndex >= s.sequences.length - 1;
     const nextLabel = isLast ? 'Voir mon bilan' : (s.def.recupSec ? 'Démarrer la récupération' : 'Séquence suivante');
+    const tempsInfo = dureeReelle === seq.objectifDuree
+      ? fmtTime(seq.objectifDuree)
+      : `${fmtTime(dureeReelle)} <span style="color:var(--red);font-size:.8em">(+${fmtTime(dureeReelle - seq.objectifDuree)})</span>`;
 
     $('ecart-popup-seq').textContent   = `Séquence ${s.seqIndex + 1} / ${s.sequences.length}`;
     $('ecart-popup-pct').textContent   = Math.round(pct * 100) + ' %';
     $('ecart-popup-pct').style.color   = col;
-    $('ecart-popup-label').textContent = `de l'objectif atteint (${dist} m / ${seq.objectifDistance} m)`;
+    $('ecart-popup-label').innerHTML   = `de l'objectif · ${dist} m en <strong>${fmtTime(dureeReelle)}</strong>${dureeReelle > seq.objectifDuree ? ` <span style="color:var(--red)">(+${fmtTime(dureeReelle - seq.objectifDuree)})</span>` : ''}<br><span style="font-size:.8em">Objectif : ${seq.objectifDistance} m en ${fmtTime(seq.objectifDuree)}</span>`;
     $('ecart-popup-next').textContent  = nextLabel;
     $('ecart-popup').classList.remove('hidden');
 
@@ -1029,18 +1035,23 @@ function renderPhaseBilan(el) {
   const vitesse      = distTotale > 0 ? Math.round((distTotale / 1000) / (dureeTotal / 3600) * 10) / 10 : 0;
   const allure       = calcAllure(vitesse);
   const moyPct       = seqsWithDist.length
-    ? seqsWithDist.reduce((a, q) => a + Math.min(q.distanceReelle / q.objectifDistance, 1), 0) / seqsWithDist.length
+    ? seqsWithDist.reduce((a, q) => {
+        const dr = q.dureeReelle || q.objectifDuree;
+        return a + Math.min((q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree), 1);
+      }, 0) / seqsWithDist.length
     : 0;
   const badge = calcBadge(moyPct);
   const col   = badgeColor(badge);
 
   const rows = s.sequences.map((q, i) => {
     const done = q.distanceReelle !== null;
-    const pct  = done ? q.distanceReelle / q.objectifDistance : null;
+    const dr   = q.dureeReelle || q.objectifDuree;
+    const pct  = done ? Math.min((q.distanceReelle / dr) / (q.objectifDistance / q.objectifDuree), 1) : null;
     const cls  = !done ? '' : pct >= 0.95 ? 'good' : pct >= 0.70 ? 'medium' : 'bad';
+    const overtime = done && dr > q.objectifDuree ? ` <span style="color:var(--red);font-size:.7em">+${fmtTime(dr - q.objectifDuree)}</span>` : '';
     return `<div class="bilan-seq-row">
       <span class="bilan-seq-num">${i+1}</span>
-      <span class="bilan-seq-dist">${done ? q.distanceReelle + ' m' : '—'}</span>
+      <span class="bilan-seq-dist">${done ? q.distanceReelle + ' m' + overtime : '—'}</span>
       <span class="bilan-seq-ecart ${cls}">${done ? Math.round(pct*100) + ' %' : ''}</span>
     </div>`;
   }).join('');
