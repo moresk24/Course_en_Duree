@@ -559,7 +559,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 ═══════════════════════════════════════════ */
 .modal-bg        { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 300; padding: 1rem }
 .modal-bg.hidden { display: none }
-.modal           { background: var(--s1); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; max-width: 340px; width: 100% }
+.modal           { background: var(--s1); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; max-width: 340px; width: 100%; position: relative }
 .modal h3        { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; margin-bottom: .5rem }
 .modal p         { font-size: .85rem; color: var(--muted); line-height: 1.5; margin-bottom: 1.25rem }
 .modal-actions   { display: flex; gap: .75rem }

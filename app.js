@@ -434,7 +434,7 @@ function renderAccueil() {
     html.push(`<div class="cta-card">
       <div class="cta-card-title">Prochaine séance : S${next}</div>
       <div class="cta-card-sub">${descSeance}</div>
-      <button class="btn" id="btn-demarrer-seance">Commencer la séance S${next}</button>
+      <button class="btn" id="btn-demarrer-seance">Accéder à la séance S${next}</button>
     </div>`);
     html.push(renderBadgeSummary());
     html.push(`<button class="btn btn-outline" id="btn-changer-projet" style="margin-bottom:.75rem">Changer de projet</button>`);
@@ -751,7 +751,7 @@ function renderSeancePrepare(num) {
     <strong>📱 Conseil :</strong> Lancez votre application GPS maintenant pour mesurer la distance réelle à la fin de chaque séquence.
   </div>`);
 
-  html.push(`<button class="btn" id="btn-start-seance">Commencer la séance</button>`);
+  html.push(`<button class="btn" id="btn-start-seance">Accéder à la séquence 1</button>`);
 
   el.innerHTML = html.join('');
   $('btn-start-seance').onclick = () => startSeance(num);
@@ -843,11 +843,15 @@ function renderPhaseChronoCours(el) {
         </div>
       </div>
       <div class="chrono-display ${running ? 'running' : ''}" id="chrono-display">${fmtTime(seq.objectifDuree)}</div>
+      ${s.def.recupSec && s.seqIndex < s.sequences.length - 1
+        ? `<div style="font-size:.78rem;color:var(--blue);margin-top:.5rem">⏸ Récupération après : ${fmtDureeLabel(s.def.recupSec)}</div>`
+        : (s.seqIndex === s.sequences.length - 1 ? `<div style="font-size:.78rem;color:var(--muted);margin-top:.5rem">Dernière séquence — pas de récupération</div>` : '')
+      }
     </div>
     ${running
       ? `<button class="btn btn-pulse" id="btn-terminer-seq" style="margin-bottom:.75rem;padding:1.2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--red),#c0392b)">✅ J'ai terminé la séquence</button>
          <div style="font-size:.75rem;color:var(--muted);text-align:center">Le chrono continue même si vous quittez cette page.</div>`
-      : `<button class="btn btn-pulse" id="btn-start-seq" style="padding:1.4rem;font-size:1.3rem">▶ Démarrer la séquence</button>`
+      : `<button class="btn btn-pulse" id="btn-start-seq" style="padding:1.4rem;font-size:1.3rem">▶ Démarrer le Chronomètre</button>`
     }`;
 
   if (running) {
@@ -899,36 +903,29 @@ function renderPhaseSaisie(el) {
 
     seq.distanceReelle = dist;
     const pct = dist / seq.objectifDistance;
-    const cls = pct >= 0.95 ? 'good' : pct >= 0.70 ? 'medium' : 'bad';
-    const txt = Math.round(pct * 100) + ' %';
-
-    // Afficher écart puis avancer
-    el.insertAdjacentHTML('beforeend', `
-      <div class="ecart-card ${cls}" id="ecart-card">
-        <div class="ecart-pct ${cls}">${txt}</div>
-        <div class="ecart-label">de l'objectif atteint (${dist} m / ${seq.objectifDistance} m)</div>
-      </div>`);
-
+    const col = pct >= 0.95 ? 'var(--accent)' : pct >= 0.70 ? 'var(--orange,#e67e22)' : 'var(--red)';
     const isLast = s.seqIndex >= s.sequences.length - 1;
+    const nextLabel = isLast ? 'Voir mon bilan' : (s.def.recupSec ? 'Démarrer la récupération' : 'Séquence suivante');
 
-    if (!isLast && s.def.recupSec) {
-      // Démarrer récupération
-      setTimeout(() => {
-        s.phase = 'recup';
-        renderSeancePhase();
-      }, 1500);
-    } else if (!isLast) {
-      setTimeout(() => {
-        s.seqIndex++;
-        s.phase = 'cours';
-        renderSeancePhase();
-      }, 1500);
-    } else {
-      setTimeout(() => {
-        s.phase = 'bilan-saisie';
-        renderSeancePhase();
-      }, 1500);
-    }
+    $('ecart-popup-seq').textContent   = `Séquence ${s.seqIndex + 1} / ${s.sequences.length}`;
+    $('ecart-popup-pct').textContent   = Math.round(pct * 100) + ' %';
+    $('ecart-popup-pct').style.color   = col;
+    $('ecart-popup-label').textContent = `de l'objectif atteint (${dist} m / ${seq.objectifDistance} m)`;
+    $('ecart-popup-next').textContent  = nextLabel;
+    $('ecart-popup').classList.remove('hidden');
+
+    const closeEcart = () => {
+      $('ecart-popup').classList.add('hidden');
+      if (isLast) {
+        s.phase = 'bilan-saisie'; renderSeancePhase();
+      } else if (s.def.recupSec) {
+        s.phase = 'recup'; renderSeancePhase();
+      } else {
+        s.seqIndex++; s.phase = 'cours'; renderSeancePhase();
+      }
+    };
+    $('ecart-popup-close').onclick = closeEcart;
+    $('ecart-popup-next').onclick  = closeEcart;
   };
 }
 

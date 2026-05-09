@@ -153,6 +153,17 @@
   </div>
 </div>
 
+<!-- Popup écart séquence -->
+<div class="modal-bg hidden" id="ecart-popup">
+  <div class="modal" style="text-align:center">
+    <button id="ecart-popup-close" style="position:absolute;top:.75rem;right:.75rem;background:none;border:none;font-size:1.4rem;color:var(--muted);cursor:pointer;line-height:1">×</button>
+    <div id="ecart-popup-seq" style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem"></div>
+    <div id="ecart-popup-pct" style="font-family:'Bebas Neue',sans-serif;font-size:3.5rem;line-height:1"></div>
+    <div id="ecart-popup-label" style="font-size:.85rem;color:var(--muted);margin-top:.25rem"></div>
+    <button class="btn" id="ecart-popup-next" style="margin-top:1.25rem"></button>
+  </div>
+</div>
+
 <!-- Badge zoom -->
 <div class="overlay hidden" id="badge-zoom" onclick="closeBadgeZoom()" style="flex-direction:column;gap:1rem;cursor:pointer">
   <div id="badge-zoom-emoji" style="font-size:7rem;line-height:1"></div>
