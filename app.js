@@ -803,7 +803,7 @@ function startSeance(num) {
       num, projet: p, def,
       sequences,
       seqIndex: 0,
-      phase: 'cours',     // cours | saisie | recup | bilan-saisie | bilan
+      phase: 'cours',     // cours | saisie | recup | bilan
       seqRunning: false,
       ressenti: null,
     };
@@ -835,7 +835,7 @@ function renderSeancePhase() {
     case 'cours':        renderPhaseChronoCours(el); break;
     case 'saisie':       renderPhaseSaisie(el);      break;
     case 'recup':        renderPhaseRecup(el);        break;
-    case 'bilan-saisie': renderPhaseBilanSaisie(el); break;
+    case 'bilan-saisie': // fallthrough intentionnel
     case 'bilan':        renderPhaseBilan(el);        break;
     case 'p3-cours':     renderPhaseP3Cours(el);     break;
     case 'p3-saisie':    renderPhaseSaisieP3(el);    break;
@@ -962,7 +962,7 @@ function renderPhaseSaisie(el) {
       const closeEcart = () => {
         $('ecart-popup').classList.add('hidden');
         if (isLast) {
-          s.phase = 'bilan-saisie'; renderSeancePhase();
+          s.phase = 'bilan'; renderSeancePhase();
         } else {
           s.seqIndex++; s.phase = 'cours'; renderSeancePhase();
         }
@@ -1006,68 +1006,10 @@ function renderPhaseRecup(el) {
   });
 }
 
-// ─── Phase : saisie ressenti (P1/P2) ────────────────────────
-function renderPhaseBilanSaisie(el) {
-  const s = state.seance;
-  stopChrono();
-
-  // Résumé des séquences
-  const rows = s.sequences.map((seq, i) => {
-    const done = seq.distanceReelle !== null;
-    const pct  = done ? seq.distanceReelle / seq.objectifDistance : null;
-    const cls  = !done ? '' : pct >= 0.95 ? 'good' : pct >= 0.70 ? 'medium' : 'bad';
-    let pctVMA = null;
-    if (done && seq.objectifDuree > 0 && state.vma > 0) {
-      const vitesseReelle = (seq.distanceReelle / 1000) / (seq.objectifDuree / 3600);
-      pctVMA = Math.round(vitesseReelle / state.vma * 100);
-    }
-    return `<div class="bilan-seq-row">
-      <span class="bilan-seq-num">${i+1}</span>
-      <span class="bilan-seq-dist">${done ? seq.distanceReelle + ' m' : '—'}</span>
-      <span class="bilan-seq-ecart ${cls}">${done ? '/ ' + seq.objectifDistance + ' m · ' + Math.round(pct*100) + '%' : ''}</span>
-      ${pctVMA !== null ? `<span class="bilan-seq-vma">${pctVMA} % VMA</span>` : '<span></span>'}
-    </div>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div class="seance-header-card">
-      <div class="seance-num-label">Fin de séance</div>
-      <div class="seance-subtitle">Toutes les séquences terminées</div>
-    </div>
-    <div class="card" style="margin-bottom:1rem">
-      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Récapitulatif</div>
-      ${rows}
-    </div>
-    <div class="card" style="margin-bottom:1rem">
-      <div class="saisie-title">Comment s'est passée la séance ?</div>
-      <div class="ressenti-row" id="ressenti-row">
-        <button class="ressenti-btn-large" data-val="F">😌<br>Facile</button>
-        <button class="ressenti-btn-large" data-val="D">😤<br>Difficile</button>
-        <button class="ressenti-btn-large" data-val="TD">😰<br>Très Difficile</button>
-      </div>
-    </div>
-    <button class="btn" id="btn-calculer-bilan" disabled>Voir mon bilan</button>`;
-
-  let ressentiSel = null;
-  document.querySelectorAll('.ressenti-btn-large').forEach(btn => {
-    btn.onclick = () => {
-      document.querySelectorAll('.ressenti-btn-large').forEach(b => b.className = 'ressenti-btn-large');
-      btn.classList.add('sel-' + btn.dataset.val);
-      ressentiSel = btn.dataset.val;
-      $('btn-calculer-bilan').disabled = false;
-    };
-  });
-
-  $('btn-calculer-bilan').onclick = () => {
-    s.ressenti = ressentiSel;
-    s.phase    = 'bilan';
-    renderSeancePhase();
-  };
-}
-
 // ─── Phase : bilan final (P1/P2) ────────────────────────────
 function renderPhaseBilan(el) {
   const s = state.seance;
+  stopChrono();
 
   const seqsWithDist = s.sequences.filter(q => q.distanceReelle !== null);
   const distTotale   = seqsWithDist.reduce((a, q) => a + q.distanceReelle, 0);
@@ -1106,7 +1048,7 @@ function renderPhaseBilan(el) {
     </div>
     <div class="bilan-stats-grid">
       <div class="bilan-stat"><div class="bilan-stat-val">${distTotale}</div><div class="bilan-stat-key">mètres parcourus</div></div>
-      <div class="bilan-stat"><div class="bilan-stat-val">${Math.round(moyPct*100)} %</div><div class="bilan-stat-key">objectif atteint</div></div>
+      <div class="bilan-stat"><div class="bilan-stat-val">${Math.round(moyPct*100)} %</div><div class="bilan-stat-key">réussite</div></div>
       <div class="bilan-stat"><div class="bilan-stat-val">${vitesse}</div><div class="bilan-stat-key">km/h moy.</div></div>
       <div class="bilan-stat"><div class="bilan-stat-val">${allure}</div><div class="bilan-stat-key">allure min/km</div></div>
     </div>
@@ -1114,10 +1056,27 @@ function renderPhaseBilan(el) {
       <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Détail par séquence</div>
       ${rows}
     </div>
-    <button class="btn" id="btn-enregistrer-seance">Enregistrer ma séance</button>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="saisie-title">Comment s'est passée la séance ?</div>
+      <div class="ressenti-row" id="ressenti-row">
+        <button class="ressenti-btn-large" data-val="F">😌<br>Facile</button>
+        <button class="ressenti-btn-large" data-val="D">😤<br>Difficile</button>
+        <button class="ressenti-btn-large" data-val="TD">😰<br>Très Difficile</button>
+      </div>
+    </div>
+    <button class="btn" id="btn-enregistrer-seance" disabled>Enregistrer ma séance</button>
     <button class="btn btn-outline" id="btn-annuler-seance" style="margin-top:.6rem">Annuler (ne pas enregistrer)</button>`;
 
   $('badge-card').onclick = () => showBadgeZoom(badgeEmoji(badge), badge, col);
+
+  document.querySelectorAll('.ressenti-btn-large').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.ressenti-btn-large').forEach(b => b.className = 'ressenti-btn-large');
+      btn.classList.add('sel-' + btn.dataset.val);
+      s.ressenti = btn.dataset.val;
+      $('btn-enregistrer-seance').disabled = false;
+    };
+  });
 
   $('btn-enregistrer-seance').onclick = async () => {
     const data = {
@@ -1139,10 +1098,7 @@ function renderPhaseBilan(el) {
     await saveSeanceData(s.num, data);
   };
 
-  $('btn-annuler-seance').onclick = () => {
-    state.seance = null;
-    renderSeancePage();
-  };
+  $('btn-annuler-seance').onclick = () => { state.seance = null; updateTopbar(); renderSeancePage(); };
 }
 
 // ─── Phase : P3 chrono global ────────────────────────────────
