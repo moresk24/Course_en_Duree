@@ -378,19 +378,19 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
   background: none; border: none;
   padding: 0; text-align: center; margin-bottom: 1rem;
   position: relative;
-  min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 225px; display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-@media (min-width: 480px) { .chrono-card { min-height: 250px } }
+@media (min-width: 480px) { .chrono-card { min-height: 260px } }
 .chrono-card::before {
   content: ''; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -58%);
-  width: 150px; height: 184px;
+  width: 180px; height: 221px;
   background: url('chrono.png') no-repeat center / contain;
   opacity: .15; pointer-events: none; filter: invert(1);
 }
 [data-theme="light"] .chrono-card::before { filter: none; opacity: .12 }
 @media (min-width: 480px) {
-  .chrono-card::before { width: 200px; height: 245px }
+  .chrono-card::before { width: 210px; height: 258px }
 }
 .chrono-card.running { }
 .chrono-card.recup   { }
