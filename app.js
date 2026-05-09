@@ -1610,12 +1610,12 @@ function renderTuto() {
         <div style="background:var(--s2);border-radius:10px;padding:.65rem;text-align:center">
           <div style="font-size:1.8rem">🥉</div>
           <div style="font-weight:700;color:#cd7f32">Bronze</div>
-          <div style="font-size:.75rem;color:var(--muted)">70–84 %</div>
+          <div style="font-size:.75rem;color:var(--muted)">75–84 %</div>
         </div>
         <div style="background:var(--s2);border-radius:10px;padding:.65rem;text-align:center">
           <div style="font-size:1.8rem">📦</div>
           <div style="font-weight:700;color:var(--red)">Carton</div>
-          <div style="font-size:.75rem;color:var(--muted)">< 70 %</div>
+          <div style="font-size:.75rem;color:var(--muted)">< 75 %</div>
         </div>
       </div>
     </div>

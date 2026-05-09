@@ -218,7 +218,7 @@ function calcDistanceObjectifP3(vma) {
 function calcBadge(pctMoyen) {
   if (pctMoyen >= 0.95) return 'Or';
   if (pctMoyen >= 0.85) return 'Argent';
-  if (pctMoyen >= 0.70) return 'Bronze';
+  if (pctMoyen >= 0.75) return 'Bronze';
   return 'Carton';
 }
 
