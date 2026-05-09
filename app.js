@@ -404,7 +404,7 @@ function renderAccueil() {
   // Hero
   html.push(`<div class="dashboard-hero">
     <div class="dashboard-hero-name">Projet ${p}</div>
-    <div class="dashboard-hero-projet">${pInfo.nom}</div>
+    <div class="dashboard-hero-projet" id="hero-projet-link" style="cursor:pointer;text-decoration:underline dotted">${pInfo.nom}</div>
     <div class="hero-divider"></div>
     <div class="dashboard-hero-vma"><span class="dashboard-hero-vma-label">VMA</span><span class="dashboard-hero-vma-arrow"> → </span><span class="dashboard-hero-vma-val">${state.vma}</span><span class="dashboard-hero-vma-unit"> KM/H</span></div>`);
 
@@ -452,6 +452,9 @@ function renderAccueil() {
 
   const cp = $('btn-changer-projet');
   if (cp) cp.onclick = () => showChangerProjet();
+
+  const hl = $('hero-projet-link');
+  if (hl) hl.onclick = () => { showPage('projet'); renderProjetDetail(parseInt(state.projet)); };
 }
 
 function lastSeance() {
@@ -626,18 +629,37 @@ function showChangerProjet() {
 }
 
 // ═══════════════════════════════════════════════════
-//  PAGE MON PROJET
+//  PAGE PROJETS
 // ═══════════════════════════════════════════════════
 function renderProjet() {
   const el = $('page-projet');
-  if (!state.projet) {
-    el.innerHTML = `<div class="no-data-msg">Vous n'avez pas encore choisi de projet.<br>Effectuez d'abord le test Demi-Cooper depuis l'accueil.</div>`;
-    return;
-  }
+  el.innerHTML = `
+    <div class="ressource-header">
+      <div class="ressource-title">🎯 Les projets</div>
+    </div>` +
+    [1, 2, 3].map(p => {
+      const info = PROJETS_INFO[p];
+      const isMine = state.projet && parseInt(state.projet) === p;
+      return `<div class="projet-card-list ${info.couleur} ${isMine ? 'projet-card-mine' : ''}" data-projet="${p}" style="cursor:pointer">
+        <div class="projet-card-list-header">
+          <span class="projet-card-list-icon">${info.icon}</span>
+          <span class="projet-card-list-title">Projet ${p} — ${info.nom}</span>
+          ${isMine ? `<span class="projet-card-list-badge">Votre projet</span>` : ''}
+        </div>
+        <div class="projet-card-list-intensite">${info.intensite}</div>
+        <div class="projet-card-list-desc">${info.description.split('.')[0]}.</div>
+      </div>`;
+    }).join('');
 
-  const p    = parseInt(state.projet);
+  [1, 2, 3].forEach(p => {
+    el.querySelector(`[data-projet="${p}"]`).onclick = () => renderProjetDetail(p);
+  });
+}
+
+function renderProjetDetail(p) {
+  const el   = $('page-projet');
   const info = PROJETS_INFO[p];
-  const headerClass = p === 1 ? 'blue' : p === 2 ? 'orange' : 'green';
+  const headerClass = info.couleur;
 
   el.innerHTML = `
     <div class="projet-fiche">
@@ -657,10 +679,9 @@ function renderProjet() {
         </ul>
       </div>
     </div>
-    <div style="font-size:.75rem;color:var(--muted);text-align:center;line-height:1.6">
-      VMA : <strong>${state.vma} km/h</strong><br>
-      Toutes les distances cibles sont calculées à partir de votre VMA.
-    </div>`;
+    ${state.vma ? `<div style="font-size:.75rem;color:var(--muted);text-align:center;line-height:1.6">VMA : <strong>${state.vma} km/h</strong><br>Toutes les distances cibles sont calculées à partir de votre VMA.</div>` : ''}`;
+
+  el.scrollTop = 0;
 }
 
 // ═══════════════════════════════════════════════════
@@ -919,10 +940,11 @@ function renderPhaseSaisie(el) {
       ? fmtTime(seq.objectifDuree)
       : `${fmtTime(dureeReelle)} <span style="color:var(--red);font-size:.8em">(+${fmtTime(dureeReelle - seq.objectifDuree)})</span>`;
 
-    $('ecart-popup-seq').textContent   = `Séquence ${s.seqIndex + 1} / ${s.sequences.length}`;
-    $('ecart-popup-pct').textContent   = Math.round(pct * 100) + ' %';
-    $('ecart-popup-pct').style.color   = col;
-    $('ecart-popup-label').innerHTML   = `de l'objectif · ${dist} m en <strong>${fmtTime(dureeReelle)}</strong>${dureeReelle > seq.objectifDuree ? ` <span style="color:var(--red)">(+${fmtTime(dureeReelle - seq.objectifDuree)})</span>` : ''}<br><span style="font-size:.8em">Objectif : ${seq.objectifDistance} m en ${fmtTime(seq.objectifDuree)}</span>`;
+    $('ecart-popup-seq').textContent      = `Bilan séquence ${s.seqIndex + 1}/${s.sequences.length}`;
+    $('ecart-popup-objectif').textContent = `Objectif : ${seq.objectifDistance} m en ${fmtTime(seq.objectifDuree)}`;
+    $('ecart-popup-reel').innerHTML       = `Vous avez parcouru ${dist} m en ${fmtTime(dureeReelle)}${dureeReelle > seq.objectifDuree ? ` <span style="color:var(--red);font-weight:400">(+${fmtTime(dureeReelle - seq.objectifDuree)})</span>` : ''}`;
+    $('ecart-popup-pct').innerHTML        = `${Math.round(pct * 100)} % <span style="font-size:1.5rem;letter-spacing:.05em">de réussite</span>`;
+    $('ecart-popup-pct').style.color      = col;
     $('ecart-popup-next').textContent  = nextLabel;
     $('ecart-popup').classList.remove('hidden');
 
@@ -934,6 +956,8 @@ function renderPhaseSaisie(el) {
       $('ecart-popup').classList.remove('hidden');
       const closeEcart = () => { $('ecart-popup').classList.add('hidden'); $('ecart-popup-next').style.display = ''; };
       $('ecart-popup-close').onclick = closeEcart;
+      $('ecart-popup').onclick = closeEcart;
+      $('ecart-popup').querySelector('.modal').onclick = e => e.stopPropagation();
     } else {
       const closeEcart = () => {
         $('ecart-popup').classList.add('hidden');
@@ -945,6 +969,8 @@ function renderPhaseSaisie(el) {
       };
       $('ecart-popup-close').onclick = closeEcart;
       $('ecart-popup-next').onclick  = closeEcart;
+      $('ecart-popup').onclick = closeEcart;
+      $('ecart-popup').querySelector('.modal').onclick = e => e.stopPropagation();
     }
   };
 }
@@ -1580,17 +1606,37 @@ function renderTuto() {
 
     <div class="section-title">Pendant la séance</div>
     <div class="tuto-step"><div class="tuto-step-num">4</div><div class="tuto-step-content">
-      <div class="tuto-step-title">Lancer votre application GPS</div>
-      Avant de commencer, ouvrez une appli GPS (Google Fit, Strava, Running…) pour mesurer la distance réelle.
+      <div class="tuto-step-title">Préparez votre appli GPS</div>
+      Avant de commencer, ouvrez une appli GPS (Strava, Nike Run…) et lancez un suivi. Elle vous donnera la distance réelle à saisir à la fin de chaque séquence.
     </div></div>
     <div class="tuto-step"><div class="tuto-step-num">5</div><div class="tuto-step-content">
-      <div class="tuto-step-title">Suivre le chronomètre</div>
-      L'application gère le chrono de chaque séquence et la récupération. À la fin de chaque séquence, saisissez la distance parcourue.
+      <div class="tuto-step-title">Démarrez le chronomètre</div>
+      Appuyez sur « Démarrer le Chronomètre » au départ de chaque séquence. Le chrono décompte jusqu'à 0:00 puis continue en rouge si vous dépassez le temps — il s'arrête seulement quand vous appuyez sur « J'ai terminé la séquence ».
     </div></div>
     <div class="tuto-step"><div class="tuto-step-num">6</div><div class="tuto-step-content">
-      <div class="tuto-step-title">Bilan et badge</div>
-      À la fin, l'application calcule votre performance et attribue un badge selon votre taux de réalisation des objectifs.
+      <div class="tuto-step-title">Saisissez votre distance</div>
+      Après chaque séquence, entrez la distance réelle parcourue (visible sur votre appli GPS). Le bilan de la séquence s'affiche pendant la récupération.
     </div></div>
+    <div class="tuto-step"><div class="tuto-step-num">7</div><div class="tuto-step-content">
+      <div class="tuto-step-title">Récupération</div>
+      Entre chaque séquence, un chrono de récupération se lance automatiquement. Marchez ou trottinez doucement. Vous pouvez passer à la séquence suivante avant la fin si vous êtes prêt.
+    </div></div>
+    <div class="tuto-step"><div class="tuto-step-num">8</div><div class="tuto-step-content">
+      <div class="tuto-step-title">Bilan et badge</div>
+      À la fin de toutes les séquences, indiquez votre ressenti. L'application calcule votre badge selon votre taux de réussite moyen.
+    </div></div>
+
+    <div class="section-title">Comment est calculé le % de réussite ?</div>
+    <div class="card" style="margin-bottom:1rem;font-size:.88rem;line-height:1.6">
+      Le % de réussite mesure à quel point vous avez couru à <strong>l'allure exacte prévue</strong> — ni trop vite, ni trop lentement.<br><br>
+      L'objectif est de courir une certaine distance <em>en un certain temps</em>. Si vous respectez exactement cette allure, vous obtenez <strong>100 %</strong>.<br><br>
+      <strong>Exemples :</strong><br>
+      • Objectif 650 m en 3 min — vous faites 650 m en 3 min → <strong>100 %</strong><br>
+      • Vous faites 600 m en 3 min → allure trop lente → <strong>moins de 100 %</strong><br>
+      • Vous faites 650 m en 2 min 30 → allure trop rapide → <strong>moins de 100 %</strong><br>
+      • Vous faites 650 m mais en 3 min 30 → dépassement de temps → <strong>moins de 100 %</strong><br><br>
+      Le badge final est calculé sur la <strong>moyenne</strong> de toutes vos séquences.
+    </div>
 
     <div class="section-title">Badges</div>
     <div class="card" style="margin-bottom:1rem">
@@ -1598,7 +1644,7 @@ function renderTuto() {
         <div style="background:var(--s2);border-radius:10px;padding:.65rem;text-align:center">
           <div style="font-size:1.8rem">🥇</div>
           <div style="font-weight:700;color:var(--yellow)">Or</div>
-          <div style="font-size:.75rem;color:var(--muted)">≥ 95 % objectif</div>
+          <div style="font-size:.75rem;color:var(--muted)">≥ 95 %</div>
         </div>
         <div style="background:var(--s2);border-radius:10px;padding:.65rem;text-align:center">
           <div style="font-size:1.8rem">🥈</div>
@@ -1623,6 +1669,9 @@ function renderTuto() {
     </div>
     <div class="tuto-alert yellow" style="margin-bottom:.75rem">
       <strong>⚠️ Connexion requise</strong> lors de la connexion et de l'enregistrement de la séance. Pendant la séance, le chrono fonctionne hors ligne.
+    </div>
+    <div class="tuto-alert green" style="margin-bottom:.75rem">
+      <strong>💾 Séance interrompue ?</strong> Utilisez le menu ☰ en haut à droite pour enregistrer votre séance même si toutes les séquences n'ont pas été effectuées.
     </div>`;
 }
 

@@ -294,6 +294,19 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none }
 /* ═══════════════════════════════════════════
    PAGE MON PROJET
 ═══════════════════════════════════════════ */
+.projet-card-list { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: .75rem; transition: border-color .15s }
+.projet-card-list:active { opacity: .85 }
+.projet-card-list.projet-card-mine { border-color: var(--accent) }
+.projet-card-list.blue:hover   { border-color: var(--blue) }
+.projet-card-list.orange:hover { border-color: var(--orange) }
+.projet-card-list.green:hover  { border-color: var(--accent) }
+.projet-card-list-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem }
+.projet-card-list-icon   { font-size: 1.3rem; line-height: 1 }
+.projet-card-list-title  { font-weight: 700; font-size: .95rem; flex: 1 }
+.projet-card-list-badge  { font-size: .65rem; background: var(--accent); color: #fff; border-radius: 20px; padding: .15rem .55rem; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap }
+.projet-card-list-intensite { font-size: .75rem; color: var(--muted); margin-bottom: .4rem }
+.projet-card-list-desc   { font-size: .82rem; color: var(--muted); line-height: 1.5 }
+
 .projet-fiche     { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1rem }
 .fiche-header     { background: linear-gradient(135deg, var(--accent), var(--accent2)); padding: 1.25rem }
 .fiche-header h2  { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: .05em; color: #fff }
