@@ -692,7 +692,7 @@ function renderSeancePrepare(num) {
       </div>`);
     }
     if (def.recupSec) {
-      html.push(`<div style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.5rem">Récupération entre chaque séquence : ${fmtDureeLabel(def.recupSec)}</div>`);
+      html.push(`<div class="recup-info-banner">⏸ Récupération entre chaque séquence : <strong>${fmtDureeLabel(def.recupSec)}</strong></div>`);
     }
     html.push(`</div>`);
   } else {
